@@ -9,16 +9,20 @@ const main = async ()=>{
 
 let mileCount;
 mileCount = await walkContract.getTotalmiles();
+console.log(mileCount);
 
-let mileTxn = await walkContract.miles();
+
+let mileTxn = await walkContract.mile(23);
 await mileTxn.wait();
 
 mileCount = await walkContract.getTotalmiles();
+console.log(mileCount);
 
-mileTxn = await walkContract.connect(randomPerson).miles();
-await mileTxn.wait();
 
-mileCount = await walkContract.getTotalmiles();
+
+// const [_, randomPerson] = await hre.ethers.getSigners();
+// mileTxn = await walkContract.connect(randomPerson).mile(2);
+// await mileTxn.wait(); // Wait for the transaction to be mined
 
 };
 const runMain = async () =>{
