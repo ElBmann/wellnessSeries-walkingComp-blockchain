@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import './App.css';
 import abi from './utils/walkCompetition.json';
+import { default as strava, Strava } from 'strava-v3';
 import fetchMiles from './scripts/getStravaAPI';
 //Add Front End to Git. Please
 const App = () => {
@@ -66,11 +67,21 @@ const App = () => {
   }
  
 
-    const apiGet = () => {
-      fetch('https://www.strava.com/api/v3/athlete')
-        .then((response) => response.json())
-        .then((json) => console.log(json))
-    }
+  const apiGet = async () => {
+    const strava = require('strava-v3');
+    strava.config({
+      "access_token"  : "b302c8281644d62ef282f8ac76b3492c6138bc67",
+      "client_id"     : "74956",
+      "client_secret" : "f8a8dc97c248d441d8a6453198a4c2b13aaa85c0",
+      "redirect_uri"  : "briguyyy.crypto",
+    });
+    const payload = await strava.athlete.get(
+      {'access_token':'b302c8281644d62ef282f8ac76b3492c6138bc67'},function(err,payload,limits) {
+        console.log(payload);
+      
+    });
+   
+  }
   
   const connectWallet = async () => {
     try {
@@ -141,7 +152,7 @@ const App = () => {
 
         <form onSubmit={handleSubmit}>
           <input onChange={(e) => setName(e.target.value)} value={name}></input>
-          <button className="waveButton" onClick={vibes}>
+          <button className="waveButton" onClick={apiGet}>
             Set Miles Walked 🙌
           </button>
 

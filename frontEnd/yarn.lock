@@ -2831,7 +2831,7 @@
   "resolved" "https://registry.npmjs.org/binary-extensions/-/binary-extensions-2.2.0.tgz"
   "version" "2.2.0"
 
-"bluebird@^3.5.5":
+"bluebird@^3.5.0", "bluebird@^3.5.5":
   "integrity" "sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg=="
   "resolved" "https://registry.npmjs.org/bluebird/-/bluebird-3.7.2.tgz"
   "version" "3.7.2"
@@ -9449,7 +9449,17 @@
     "stealthy-require" "^1.1.1"
     "tough-cookie" "^2.3.3"
 
-"request@^2.34", "request@^2.87.0", "request@^2.88.0":
+"request-promise@^4.2.0":
+  "integrity" "sha512-HCHI3DJJUakkOr8fNoCc73E5nU5bqITjOYFMDrKHYOXWXrgD/SBaC7LjwuPymUprRyuF06UK7hd/lMHkmUXglQ=="
+  "resolved" "https://registry.npmjs.org/request-promise/-/request-promise-4.2.6.tgz"
+  "version" "4.2.6"
+  dependencies:
+    "bluebird" "^3.5.0"
+    "request-promise-core" "1.1.4"
+    "stealthy-require" "^1.1.1"
+    "tough-cookie" "^2.3.3"
+
+"request@^2.34", "request@^2.81.0", "request@^2.87.0", "request@^2.88.0":
   "integrity" "sha512-MsvtOrfG9ZcrOwAW+Qi+F6HbD0CWXEh9ou77uOb7FM2WPhwT7smM833PzanhJLsgXjN89Ir6V2PczXNnMpwKhw=="
   "resolved" "https://registry.npmjs.org/request/-/request-2.88.2.tgz"
   "version" "2.88.2"
@@ -10206,6 +10216,15 @@
   "integrity" "sha1-NbCYdbT/SfJqd35QmzCQoyJr8ks="
   "resolved" "https://registry.npmjs.org/stealthy-require/-/stealthy-require-1.1.1.tgz"
   "version" "1.1.1"
+
+"strava-v3@^2.0.10":
+  "integrity" "sha512-q9yaHIJzbSQVRWTVZGvBB4uttHnZWqyF4akWkZRaI44aVBGLL9DIN0xaVA4UFFdL3QoyHYERP45XATqqQeDygg=="
+  "resolved" "https://registry.npmjs.org/strava-v3/-/strava-v3-2.0.10.tgz"
+  "version" "2.0.10"
+  dependencies:
+    "bluebird" "^3.5.0"
+    "request" "^2.81.0"
+    "request-promise" "^4.2.0"
 
 "stream-browserify@^2.0.1":
   "integrity" "sha512-nX6hmklHs/gr2FuxYDltq8fJA1GDlxKQCz8O/IM4atRqBH8OORmBNgfvW5gG10GT/qQ9u0CzIvr2X5Pkt6ntqg=="
