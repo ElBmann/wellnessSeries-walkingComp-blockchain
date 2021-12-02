@@ -1,0 +1,168 @@
+import React, { useEffect, useState } from "react";
+import { ethers } from "ethers";
+import './App.css';
+import abi from './utils/walkCompetition.json';
+import fetchMiles from './scripts/getStravaAPI';
+//Add Front End to Git. Please
+const App = () => {
+  const [allMiles, setAllMiles] = useState([]);
+  const [currentAccount, setCurrentAccount] = useState("");
+  const contractAddress = "0x8BEC6b8A62be9E4705755F62136aD710Af10CCe9";
+  const contractABI = abi.abi;
+
+  const getAllMiles = async () => {
+    try {
+
+      const { ethereum } = window;
+
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const WalkCompitionContract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        const walks = await WalkCompitionContract.getAllMiles();
+
+        const milesCleaned = walks.map(walk => {
+          return {
+            address: walk.walker,
+            timestamp: new Date(walk.timestamp * 1000),
+            walkedMiles: walk.walkedMiles,
+          };
+        });
+
+        setAllMiles(milesCleaned);
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
+  }
+
+  const checkIfWalletIsConnected = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (!ethereum) {
+        console.log("Make sure you have metamask!");
+        return;
+      } else {
+        getAllMiles();
+        console.log("We have the ethereum object", ethereum);
+      }
+      const accounts = await ethereum.request({ method: 'eth_accounts' });
+
+      if (accounts.length !== 0) {
+        const account = accounts[0];
+        console.log("Found an authorized account:", account);
+        setCurrentAccount(account)
+      } else {
+        console.log("No authorized account found");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+ 
+
+    const apiGet = () => {
+      fetch('https://www.strava.com/api/v3/athlete')
+        .then((response) => response.json())
+        .then((json) => console.log(json))
+    }
+  
+  const connectWallet = async () => {
+    try {
+      const { ethereum } = window;
+      if (!ethereum) {
+        alert("Get MetaMask!");
+        return;
+      }
+      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+
+      console.log("Connected", accounts[0]);
+      setCurrentAccount(accounts[0]);
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const [name, setName] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log(`Form submitted, ${name}`);
+    setName("");
+
+  }
+  const vibes = async () => {
+    try {
+
+      const { ethereum } = window;
+
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const WalkCompitionContract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        let count = await WalkCompitionContract.getTotalmiles();
+        console.log("Retrieved total vibe count...", count);
+
+        const waveTxn = await WalkCompitionContract.mile(`${name}`);
+        console.log("Mining...", waveTxn.hash);
+
+        await waveTxn.wait();
+        console.log("Mined -- ", waveTxn.hash);
+
+        count = await WalkCompitionContract.getTotalmiles();
+        console.log("retrieved total vibe count...", count);
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  useEffect(() => {
+    checkIfWalletIsConnected();
+  }, [])
+  return (
+    <div className="mainContainer">
+
+      <div className="dataContainer">
+        <div className="header">
+          🚶‍♂️ Walking Competetion!
+        </div>
+        
+        <div className="bio">
+          I am Brian Connect your Ethereum wallet and wave at me, Add your strava username, and pick your start and end date for the walking competetion.
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <input onChange={(e) => setName(e.target.value)} value={name}></input>
+          <button className="waveButton" onClick={vibes}>
+            Set Miles Walked 🙌
+          </button>
+
+        </form>
+
+        {!currentAccount && (
+          <button className="waveButton" onClick={connectWallet}>
+            Connect Wallet
+          </button>
+        )}
+
+        {allMiles.map((walk, index) => {
+          return (
+            <div key={index} style={{ backgroundColor: "OldLace", marginTop: "16px", padding: "8px" }}>
+              <div>Address: {walk.address}</div>
+              <div>Time: {walk.timestamp.toString()}</div>
+              <div>WalkedMiles: {walk.walkedMiles}</div>
+            </div>)
+        })}
+      </div>
+    </div>
+  );
+}
+export default App
