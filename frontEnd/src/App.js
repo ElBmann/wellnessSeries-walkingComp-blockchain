@@ -4,6 +4,7 @@ import './App.css';
 import abi from './utils/walkCompetition.json';
 import { default as strava, Strava } from 'strava-v3';
 import fetchMiles from './scripts/getStravaAPI';
+require('dotenv').config();
 //Add Front End to Git. Please
 const App = () => {
   const [allMiles, setAllMiles] = useState([]);
@@ -70,13 +71,13 @@ const App = () => {
   const apiGet = async () => {
     const strava = require('strava-v3');
     strava.config({
-      "access_token"  : "b302c8281644d62ef282f8ac76b3492c6138bc67",
-      "client_id"     : "74956",
-      "client_secret" : "f8a8dc97c248d441d8a6453198a4c2b13aaa85c0",
+      "access_token"  : process.env.ACCESS_TOKEN,
+      "client_id"     : process.env.CLIENT_ID,
+      "client_secret" : process.env.CLIENT_SECRET,
       "redirect_uri"  : "briguyyy.crypto",
     });
     const payload = await strava.athlete.get(
-      {'access_token':'b302c8281644d62ef282f8ac76b3492c6138bc67'},function(err,payload,limits) {
+      {'access_token':'d0a4383743e43217fdc9f8ef1dfc225681b8a017'},function(err,payload,limits) {
         console.log(payload);
       
     });
