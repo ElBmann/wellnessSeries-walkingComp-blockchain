@@ -22,9 +22,10 @@ const App = () => {
         const signer = provider.getSigner();
         const WalkCompitionContract = new ethers.Contract(contractAddress, contractABI, signer);
 
-        const walks = await WalkCompitionContract.getAllMiles();
-
+        const walks = await WalkCompitionContract.getTotalmiles();
+        console.log("walk.walkedMiles "+ walks);
         const milesCleaned = walks.map(walk => {
+          console.log("walk.walkedMiles "+ walk.walkedMiles);
           return {
             address: walk.walker,
             timestamp: new Date(walk.timestamp * 1000),
@@ -72,23 +73,33 @@ const App = () => {
     const strava = require('strava-v3');
     strava.config({
       "access_token"  : process.env.ACCESS_TOKEN,
-      "client_id"     : process.env.CLIENT_ID,
+      "client_id"     : '74956',
       "client_secret" : process.env.CLIENT_SECRET,
-      "redirect_uri"  : "briguyyy.crypto",
+      "redirect_uri"  : "http://localhost:3000/",
     });
-    const payload = await strava.athlete.get(
-      {'access_token':'d0a4383743e43217fdc9f8ef1dfc225681b8a017'},function(err,payload,limits) {
-        console.log(payload);
+    // const payload = await strava.athlete.get(
+    //   {'access_token':'d0a4383743e43217fdc9f8ef1dfc225681b8a017'},function(err,payload,limits) {
+    //     console.log(payload);
       
-    });
-   
+    // });
+    const authorizationCode = strava.oauth.getRequestAccessURL({scope:"activity:read"})
+   // const stravaApi = new strava.client('d0a4383743e43217fdc9f8ef1dfc225681b8a017');
+   // const payload = await stravaApi.athlete.get(
+     // {'access_token':'d0a4383743e43217fdc9f8ef1dfc225681b8a017'},function(err,payload,limits) {
+       // console.log(payload);
+      
+    //});
+    console.log(authorizationCode);
+   // const payload = await strava.oauth.getToken("code");
+ 
+    
   }
   
   const connectWallet = async () => {
     try {
       const { ethereum } = window;
       if (!ethereum) {
-        alert("Get MetaMask!");
+        alert("Yo, Get MetaMask!");
         return;
       }
       const accounts = await ethereum.request({ method: "eth_requestAccounts" });
@@ -138,6 +149,11 @@ const App = () => {
   }
   useEffect(() => {
     checkIfWalletIsConnected();
+    console.log(window.location.href);
+    var str = window.location.href.search(/code=/);
+    var strScope = window.location.href.search(/&scope/);
+    
+    console.log(window.location.href.substr(str,strScope));
   }, [])
   return (
     <div className="mainContainer">
@@ -158,13 +174,6 @@ const App = () => {
           </button>
 
         </form>
-
-        {!currentAccount && (
-          <button className="waveButton" onClick={connectWallet}>
-            Connect Wallet
-          </button>
-        )}
-
         {allMiles.map((walk, index) => {
           return (
             <div key={index} style={{ backgroundColor: "OldLace", marginTop: "16px", padding: "8px" }}>
@@ -173,6 +182,14 @@ const App = () => {
               <div>WalkedMiles: {walk.walkedMiles}</div>
             </div>)
         })}
+
+        {!currentAccount && (
+          <button className="waveButton" onClick={connectWallet}>
+            Connect Wallet
+          </button>
+        )}
+
+        
       </div>
     </div>
   );
