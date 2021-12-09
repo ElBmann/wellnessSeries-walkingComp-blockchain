@@ -116,8 +116,11 @@ const App = () => {
 
   }
 
+  const theBet = async () => {
 
-
+    
+    console.log("bet Placed");
+  }
   const connectWallet = async () => {
     try {
       const { ethereum } = window;
@@ -134,12 +137,12 @@ const App = () => {
     }
   }
 
-  const [name, setName] = useState("");
+  const [bet, setBet] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(`Form submitted, ${name}`);
-    setName("");
+    console.log(`Form submitted, ${bet}`);
+    setBet("");
 
   }
   const setMilesBC = async (number) => {
@@ -155,7 +158,7 @@ const App = () => {
 
         let count = await WalkCompitionContract.getTotalmiles();
         console.log("Retrieved total vibe count...", count);
-       console.log(number);
+        console.log(number);
         const waveTxn = await WalkCompitionContract.mile(number);
         console.log("Mining...", waveTxn.hash);
 
@@ -210,7 +213,7 @@ const App = () => {
         </div>
 
         <div className="bio">
-          Connect your Ethereum wallet and wave at me, Add your strava username, and pick your start and end date for the walking competition.
+          Connect your Ethereum wallet, Add your strava username, and pick your start and end date for the walking competition.
         </div>
 
         {!stravaCode && (<button className="waveButton" onClick={() => {
@@ -224,9 +227,6 @@ const App = () => {
           Click to Connect With Strava 🤝
         </button>)}
 
-
-
-
         {allMiles.map((walk, index) => {
           return (
             <div key={index} style={{ backgroundColor: "OldLace", marginTop: "16px", padding: "8px" }}>
@@ -238,6 +238,12 @@ const App = () => {
         <div>
 
         </div>
+        <form onSubmit={handleSubmit}>
+          <input onChange={(e) => setBet(e.target.value)} value={bet}></input>
+          <button className="waveButton" onClick={theBet}>
+            Place Bet ✨
+          </button>
+        </form>
         {!currentAccount && (
           <button className="waveButton" onClick={connectWallet}>
             Connect Wallet
