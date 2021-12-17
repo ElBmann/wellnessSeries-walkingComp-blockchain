@@ -15,11 +15,11 @@ contract walkCompetition{
     }
     struct Bets{
         address walker;
-        uint8 betPlaced;
+        uint256 betPlaced;
         uint256 timestamp;
     }
-    Mile[] miles;
-    Bets[] bet;
+    Mile[] public miles;
+    Bets[] public bet;
     constructor() payable{
         console.log("YOOO");
     }
@@ -31,15 +31,29 @@ contract walkCompetition{
         emit NewMile(msg.sender, block.timestamp, _mile);
     }
 
-    function fundContract(uint8 _bet) public{
+    function fundContract(uint256 _bet) public{
         console.log("Bet placed %s",_bet);
         bet.push(Bets(msg.sender,_bet,block.timestamp));
-        
+         console.log("Has placed Bet %s ",msg.sender);
+        //uint256 prizePool = _bet ether;
 
     }
 
-    function getTotalmiles()public view returns(Mile[] memory) {
+    function getTotalmiles()public view returns(uint) {
          
-         return miles;
+         return miles[0].walkedMiles;
     }
+    function getPoolTotal()public view returns(uint) {
+         uint x = 0;
+         uint total = 0;
+         console.log('TEST HERE');
+        for(x; x < bet.length; x++){
+           console.log("TEST HERE : %s ", bet[x].betPlaced);
+          total += bet[x].betPlaced; 
+        }
+
+         return total;
+    }
+
+
 }

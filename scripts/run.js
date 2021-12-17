@@ -17,13 +17,20 @@ const main = async ()=>{
     );
 //     console.log("contact deployed by:", owner.address);
 
-// let mileCount;
-// mileCount = await walkContract.getTotalmiles();
-// console.log(mileCount);
+
+let mileTxn = await walkContract.fundContract(23);
+//await mileTxn.wait();
+ mileTxn = await walkContract.fundContract(1);
+//await mileTxn.wait();
+ mileTxn = await walkContract.fundContract(6);
+await mileTxn.wait();
+
+ let mileCount;
+ mileCount = await walkContract.getPoolTotal();
+ console.log("get mile count" + mileCount);
 
 
-// let mileTxn = await walkContract.mile(23);
-// await mileTxn.wait();
+
 
 // mileCount = await walkContract.getTotalmiles();
 // console.log(mileCount);

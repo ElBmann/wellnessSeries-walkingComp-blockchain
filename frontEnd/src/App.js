@@ -115,7 +115,9 @@ const App = () => {
     }
 
   }
-
+const fundAndDeploy = async () => {
+  console.log("here is where we will take all bets and fund/deploy contract");
+}
   const theBet = async () => {
 
     
