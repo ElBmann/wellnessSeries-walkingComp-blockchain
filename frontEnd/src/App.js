@@ -104,6 +104,7 @@ const App = () => {
         const athleteInfo = await strava.athlete.listActivities({ access_token: payload.access_token })
         console.log(athleteInfo[0].distance);
         sMiles = athleteInfo[0].distance;
+        //update the contract miles
         setStravaMiles(Math.round(athleteInfo[0].distance));
         setMilesBC(Math.round(athleteInfo[0].distance));
         //setStravaMiles(37);
@@ -121,7 +122,7 @@ const fundAndDeploy = async () => {
   const theBet = async () => {
 
     
-    console.log("bet Placed");
+    console.log(`bet Placed + ${bet}`);
   }
   const connectWallet = async () => {
     try {
