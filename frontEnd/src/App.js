@@ -144,9 +144,7 @@ const App = () => {
     const provider = new ethers.providers.Web3Provider(ethereum);
     const signer = provider.getSigner();
     const WalkCompitionContract = new ethers.Contract(contractAddress, contractABI, signer);
-    console.log("TEST 123 " + `${currentAccount}` );
-    console.log("TEST 123 " + `${bet}` );
-    let placeBet = await WalkCompitionContract.takeBet('0x66463431ce15129917eb63595ec6c7683f13bc09',{value: 1000000000000000});
+    let placeBet = await WalkCompitionContract.takeBet(`${currentAccount}`,{value: `${bet}`});
      await placeBet.wait();
 
   }
