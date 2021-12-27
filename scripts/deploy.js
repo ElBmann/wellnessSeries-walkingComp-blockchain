@@ -6,8 +6,10 @@ const main = async ()=>{
     console.log('Account balance: ', accountBalance.toString());
   
     const Token = await hre.ethers.getContractFactory('walkCompetition');
-    const portal = await Token.deploy();
-    await portal.deployed();
+    const portal = await Token.deploy({
+      value: hre.ethers.utils.parseEther('0.001'),
+    });
+     portal.deployed();
 
     console.log('walkCompetition address: ', portal.address);
 };
