@@ -4,8 +4,8 @@ import "hardhat/console.sol";
 
 contract walkCompetition{
    
-    uint totalMiles;
-
+    uint256 totalMiles;
+ address payable public owner;
     event NewMile(address indexed from, uint256 timestamp, uint8 walkedMiles);
 
     struct Athlete{
@@ -22,29 +22,64 @@ contract walkCompetition{
         uint8 walkedMiles;
         uint256 timestamp;
     }
-    struct Bets{
-        address walker;
-        uint256 betPlaced;
-        uint256 timestamp;
-    }
+    
     mapping(address => Athlete) athletes;
     address[] athleteAccts;
 
     //Athlete[] public athletes;
-    Mile[] public miles;
-    Bets[] public bet;
+    Mile[] miles;
+   
     constructor() payable{
-        console.log("YOOO");
+         owner = payable(msg.sender);
+        console.log("YOOO %s" ,owner);
     }
+    event ValueReceived(address user, uint amount);
+
+      receive() external payable {
+
+          emit ValueReceived(msg.sender, msg.value);
+      }
+
+      // fallback() external payable {}
+  function transfer(address payable _to, uint _amount) public {
+        // Note that "to" is declared as payable
+        (bool success, ) = _to.call{value: _amount}("");
+        require(success, "Failed to send Ether");
+    }
+
+      function getBalance() public view returns (uint) {
+        return address(this).balance;
+    }
+function sendViaCall(address payable _to) public payable {
+        // Call returns a boolean value indicating success or failure.
+        // This is the current recommended method to use.
+        uint256 number = 1;
+        console.log("msg.value ", msg.value);
+        (bool sent, bytes memory data) = _to.call{value: number}("");
+        console.log("sent: ",sent);
+        require(sent, "Failed to send Ether");
+    }
+    mapping (address => uint256) public walkBets;
+
+    function takeBet(address user) external payable{
+        console.log('take Bet',msg.value);
+            walkBets[user] += msg.value;
+    }
+
     function mile(uint8 _mile) public{
+        
+        miles.push(Mile(msg.sender, _mile, block.timestamp));
+        //Athlete storage athlete = athletes[_address];
+        //athlete.milesWalked += _mile;
+
         totalMiles += 1;
         console.log("Has walked %s ",_mile);
-        
+         
         console.log("Has walked %s ",msg.sender);
         emit NewMile(msg.sender, block.timestamp, _mile);
     }
 
-    function betPlaced(uint256 _bet, string memory AName, address _address) public{
+    function betPlaced(uint256 _bet, string memory AName, address _address)payable public{
         Athlete storage athlete = athletes[_address];
         athlete.athleteID = _address;
         athlete.name = AName;
@@ -70,38 +105,17 @@ contract walkCompetition{
         return (athletes[_address].name,athletes[_address].betPlaced, athletes[_address].milesWalked);
     }
 
-    function getTotalmiles()public view returns(Mile[] memory) {
+    function getAllMiles()public view returns(Mile[] memory) {
          
          return miles;
     }
-    function getPoolTotal()public view returns(uint) {
-         uint x = 0;
-         uint total = 0;
-         console.log('TEST HERE');
-        for(x; x < bet.length; x++){
-           console.log("TEST HERE : %s ", bet[x].betPlaced);
-          total += bet[x].betPlaced; 
-        }
+     function getTotalMiles() public view returns (uint256){
+        console.log("We have %d total miles!",totalMiles);
+        return totalMiles;
+    }
 
-         return total;
-    }
-    function chooseWinner() public view{
-         uint x = 0;
-         uint largest = 0;
-         address winnerAdd;
-         console.log('TEST HERE');
-         //TODO: make this so it adds all wallets mileage and compares to see which wallet has the most miles
-        for(x; x < miles.length; x++){
-           console.log("TEST HERE : %s ", miles[x].walkedMiles);
-            if(miles[x].walkedMiles > largest){
-                largest = miles[x].walkedMiles;
-                winnerAdd = miles[x].walker;
-            }
-         
-        }
-        console.log("Largest Number", largest);
-        console.log("Winner Address", winnerAdd);
-    }
 
 
 }
+ 
+ 

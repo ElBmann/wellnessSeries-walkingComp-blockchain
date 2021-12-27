@@ -14,13 +14,15 @@ const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
   const [stravaLink, setStravaLink] = useState("");
   const [stravaCode, setStravaCode] = useState("");
+  const [bet, setBet] = useState("");
   let stravaCodefunction = "";
   let sMiles = "";
   const [stravaMiles, setStravaMiles] = useState("");
 
-  const contractAddress = "0x8BEC6b8A62be9E4705755F62136aD710Af10CCe9";
+  const contractAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
   const contractABI = abi.abi;
 
+  
   const getAllMiles = async () => {
     try {
 
@@ -30,11 +32,10 @@ const App = () => {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
         const WalkCompitionContract = new ethers.Contract(contractAddress, contractABI, signer);
-
-        const walks = await WalkCompitionContract.getTotalmiles();
-
+        const walks = await WalkCompitionContract.getAllMiles();
+        
         const milesCleaned = walks.map(walk => {
-          console.log("walk.walkedMiles " + walk.walkedMiles);
+        
           return {
             address: walk.walker,
             timestamp: new Date(walk.timestamp * 1000),
@@ -76,7 +77,21 @@ const App = () => {
       console.log(error);
     }
   }
+  const connectWallet = async () => {
+    try {
+      const { ethereum } = window;
+      if (!ethereum) {
+        alert("Yo, Get MetaMask!");
+        return;
+      }
+      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
 
+      console.log("Connected", accounts[0]);
+      setCurrentAccount(accounts[0]);
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const apiGet = async () => {
 
@@ -96,17 +111,23 @@ const App = () => {
   }
   const apiGetStravaData = async () => {
 
+
     try {
       console.log('stravaCode: ' + stravaCodefunction);
       console.log('Calling Props: ' + currentAccount);
       if (stravaCodefunction) {
         const payload = await strava.oauth.getToken(stravaCodefunction);
         const athleteInfo = await strava.athlete.listActivities({ access_token: payload.access_token })
-        console.log(athleteInfo[0].distance);
+        const athleteStats = await strava.athlete.get({
+          access_token: payload.access_token
+        });
+        console.log(athleteStats);
         sMiles = athleteInfo[0].distance;
+        let fName = athleteStats.firstname;
+        console.log(fName);
         //update the contract miles
-        setStravaMiles(Math.round(athleteInfo[0].distance));
-        setMilesBC(Math.round(athleteInfo[0].distance));
+      //  setStravaMiles(Math.round(athleteInfo[0].distance));
+        //setMilesBC();
         //setStravaMiles(37);
 
 
@@ -116,39 +137,31 @@ const App = () => {
     }
 
   }
-const fundAndDeploy = async () => {
-  console.log("here is where we will take all bets and fund/deploy contract");
-}
-  const theBet = async () => {
+ 
+  const placeTheBet = async () => {
 
-    
-    console.log(`bet Placed + ${bet}`);
+    const { ethereum } = window;
+    const provider = new ethers.providers.Web3Provider(ethereum);
+    const signer = provider.getSigner();
+    const WalkCompitionContract = new ethers.Contract(contractAddress, contractABI, signer);
+    console.log("TEST 123 " + `${currentAccount}` );
+    console.log("TEST 123 " + `${bet}` );
+    let placeBet = await WalkCompitionContract.takeBet('0x66463431ce15129917eb63595ec6c7683f13bc09',{value: 1000000000000000});
+     await placeBet.wait();
+
   }
-  const connectWallet = async () => {
-    try {
-      const { ethereum } = window;
-      if (!ethereum) {
-        alert("Yo, Get MetaMask!");
-        return;
-      }
-      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+ 
 
-      console.log("Connected", accounts[0]);
-      setCurrentAccount(accounts[0]);
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const [bet, setBet] = useState("");
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(`Form submitted, ${bet}`);
     setBet("");
+    placeTheBet();
 
   }
-  const setMilesBC = async (number) => {
+  const setMilesBC = async () => {
     try {
 
       const { ethereum } = window;
@@ -158,18 +171,15 @@ const fundAndDeploy = async () => {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
         const WalkCompitionContract = new ethers.Contract(contractAddress, contractABI, signer);
-
-        let count = await WalkCompitionContract.getTotalmiles();
-        console.log("Retrieved total vibe count...", count);
-        console.log(number);
-        const waveTxn = await WalkCompitionContract.mile(number);
+    
+        const waveTxn = await WalkCompitionContract.mile(4);
         console.log("Mining...", waveTxn.hash);
 
         await waveTxn.wait();
         console.log("Mined -- ", waveTxn.hash);
 
-        count = await WalkCompitionContract.getTotalmiles();
-        console.log("retrieved total vibe count...", count);
+       let count = await WalkCompitionContract.getTotalMiles();
+        console.log("retrieved total vibe count...", count.toNumber());
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -185,8 +195,7 @@ const fundAndDeploy = async () => {
     if (str != -1) {
       console.log('str' + str);
 
-
-      // stravaAToken
+      // stravaAToken  
       //setStravaAToken(window.location.href.substring(str+5, strScope));
       stravaCodefunction = window.location.href.substring(str + 5, strScope);
       setStravaCode(stravaCodefunction);
@@ -195,15 +204,11 @@ const fundAndDeploy = async () => {
   }
 
   useEffect(() => {
+    //setMilesBC();
     checkIfWalletIsConnected();
     apiGet();
     setAccessToken();
-
     apiGetStravaData();
-    // if (stravaCodefunction) {
-    //   console.log('WE IN HERE')
-    //   setMilesBC();
-    // }
 
   }, [])
   //TODO: Add another function to grab the new code from url. Add it to react state
@@ -223,13 +228,10 @@ const fundAndDeploy = async () => {
 
           window.open(stravaLink, "_blank");
 
-          // apiGet();
-          //setAccessToken();
-
         }}>
           Click to Connect With Strava 🤝
         </button>)}
-
+        <div>
         {allMiles.map((walk, index) => {
           return (
             <div key={index} style={{ backgroundColor: "OldLace", marginTop: "16px", padding: "8px" }}>
@@ -238,21 +240,20 @@ const fundAndDeploy = async () => {
               <div>WalkedMiles: {walk.walkedMiles}</div>
             </div>)
         })}
-        <div>
-
         </div>
-        <form onSubmit={handleSubmit}>
-          <input onChange={(e) => setBet(e.target.value)} value={bet}></input>
-          <button className="waveButton" onClick={theBet}>
-            Place Bet ✨
-          </button>
-        </form>
+        {currentAccount && (
+          <form onSubmit={handleSubmit}>
+            <input onChange={(e) => setBet(e.target.value)} value={bet}></input>
+            <button className="waveButton">
+              Place Bet ✨
+            </button>
+          </form>
+        )}
         {!currentAccount && (
           <button className="waveButton" onClick={connectWallet}>
             Connect Wallet
           </button>
         )}
-
 
       </div>
     </div>
