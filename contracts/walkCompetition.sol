@@ -6,6 +6,7 @@ contract walkCompetition{
    
     uint256 totalMiles;
  address payable public owner;
+ 
     event NewMile(address indexed from, uint256 timestamp, uint8 walkedMiles);
 
     struct Athlete{
@@ -61,6 +62,8 @@ function sendViaCall(address payable _to) public payable {
     }
     mapping (address => uint256) public walkBets;
 
+
+  
     function takeBet(address user) external payable{
         console.log('take Bet',msg.value);
             walkBets[user] += msg.value;

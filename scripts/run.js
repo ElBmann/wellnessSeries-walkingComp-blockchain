@@ -41,7 +41,7 @@ await mileTxn.wait();
 //console.log("BALANCE: ", hre.ethers.utils.formatEther(mileTxn));
  mileTxn = await walkContract.mile(4);
  await mileTxn.wait(); // Wait for the transaction to be mined
- mileTxn = await walkContract.takeBet('0x70997970c51812dc3a010c7d01b50e0d17dc79c8',{value: 0.0001});
+ mileTxn = await walkContract.takeBet('0x70997970c51812dc3a010c7d01b50e0d17dc79c8',{value: 2000000000000000});
  await mileTxn.wait(); // Wait for the transaction to be mined
  mileTxn = await walkContract.getBalance();
  console.log("BALANCE: ", hre.ethers.utils.formatEther(mileTxn));

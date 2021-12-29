@@ -6,6 +6,8 @@ import abi from './utils/walkCompetition.json';
 import fetchMiles from './scripts/getStravaAPI';
 import { Link } from 'react-router-dom';
 const strava = require("strava-v3");
+const cc = require('cryptocompare');
+cc.setApiKey('bedb32cb7730e53acc6057349321ea70b461e6e1e865680c18bfd4e6c635ef44');
 require('dotenv').config();
 //Add Front End to Git. Please
 const App = () => {
@@ -15,6 +17,7 @@ const App = () => {
   const [stravaLink, setStravaLink] = useState("");
   const [stravaCode, setStravaCode] = useState("");
   const [bet, setBet] = useState("");
+  const [currentETHPrice,setETHPrice] = useState("");
   let stravaCodefunction = "";
   let sMiles = "";
   const [stravaMiles, setStravaMiles] = useState("");
@@ -61,7 +64,7 @@ const App = () => {
         console.log("Make sure you have metamask!");
         return;
       } else {
-        getAllMiles();
+       // getAllMiles();
         console.log("We have the ethereum object", ethereum);
       }
       const accounts = await ethereum.request({ method: 'eth_accounts' });
@@ -109,6 +112,17 @@ const App = () => {
 
 
   }
+  const cCompare = async () =>{
+    cc.price('ETH', 'USD')
+    .then(prices => {
+      setETHPrice(prices);
+      console.log(prices)
+      // -> { USD: 1100.24 }
+    })
+    .catch(console.error)
+
+  }
+
   const apiGetStravaData = async () => {
 
 
@@ -144,7 +158,10 @@ const App = () => {
     const provider = new ethers.providers.Web3Provider(ethereum);
     const signer = provider.getSigner();
     const WalkCompitionContract = new ethers.Contract(contractAddress, contractABI, signer);
-    let placeBet = await WalkCompitionContract.takeBet(`${currentAccount}`,{value: `${bet}`});
+    //const ethValue = eth
+    const ethToWei = `${bet}` * 1000000000000000000;
+    console.log(ethToWei);
+    let placeBet = await WalkCompitionContract.takeBet(`${currentAccount}`,{value: ethToWei});
      await placeBet.wait();
 
   }
@@ -207,6 +224,7 @@ const App = () => {
     apiGet();
     setAccessToken();
     apiGetStravaData();
+    cCompare();
 
   }, [])
   //TODO: Add another function to grab the new code from url. Add it to react state
