@@ -6,6 +6,8 @@ import abi from './utils/walkCompetition.json';
 import fetchMiles from './scripts/getStravaAPI';
 import { Link } from 'react-router-dom';
 const strava = require("strava-v3");
+const cc = require('cryptocompare');
+cc.setApiKey('bedb32cb7730e53acc6057349321ea70b461e6e1e865680c18bfd4e6c635ef44');
 require('dotenv').config();
 //Add Front End to Git. Please
 const App = () => {
@@ -15,6 +17,7 @@ const App = () => {
   const [stravaLink, setStravaLink] = useState("");
   const [stravaCode, setStravaCode] = useState("");
   const [bet, setBet] = useState("");
+  const [currentETHPriceUSD,setETHPrice] = useState("");
   let stravaCodefunction = "";
   let sMiles = "";
   const [stravaMiles, setStravaMiles] = useState("");
@@ -61,7 +64,7 @@ const App = () => {
         console.log("Make sure you have metamask!");
         return;
       } else {
-        getAllMiles();
+       // getAllMiles();
         console.log("We have the ethereum object", ethereum);
       }
       const accounts = await ethereum.request({ method: 'eth_accounts' });
@@ -109,6 +112,21 @@ const App = () => {
 
 
   }
+  const cCompare = async () =>{
+    cc.price('ETH', 'USD')
+    .then(prices => {
+      const map = new Map(Object.entries(prices));
+      const USDValue = map.get('USD');
+      console.log(USDValue);
+      setETHPrice(USDValue);
+      console.log(prices);
+      
+      // -> { USD: 1100.24 }
+    })
+    .catch(console.error)
+
+  }
+
   const apiGetStravaData = async () => {
 
 
@@ -144,7 +162,11 @@ const App = () => {
     const provider = new ethers.providers.Web3Provider(ethereum);
     const signer = provider.getSigner();
     const WalkCompitionContract = new ethers.Contract(contractAddress, contractABI, signer);
-    let placeBet = await WalkCompitionContract.takeBet(`${currentAccount}`,{value: `${bet}`});
+    const currentETHUSD = `${currentETHPriceUSD}`;
+    const usdPriceToETH = `${bet}` * `${currentETHPriceUSD}`;
+    const ETHToWei =  ethers.utils.parseUnits(`${bet}`,'ether');
+    console.log("convertEthValueToUSD: "+ usdPriceToETH);
+    let placeBet = await WalkCompitionContract.takeBet(`${currentAccount}`,{value: ETHToWei});
      await placeBet.wait();
 
   }
@@ -207,6 +229,7 @@ const App = () => {
     apiGet();
     setAccessToken();
     apiGetStravaData();
+    cCompare();
 
   }, [])
   //TODO: Add another function to grab the new code from url. Add it to react state
@@ -217,9 +240,8 @@ const App = () => {
         <div className="header">
           🚶‍♂️ Walking competitions!
         </div>
-
         <div className="bio">
-          Connect your Ethereum wallet, Add your strava username, and pick your start and end date for the walking competition.
+          Connect your Meta Mask wallet | Login to Strava | Start walking
         </div>
 
         {!stravaCode && (<button className="waveButton" onClick={() => {
@@ -239,20 +261,24 @@ const App = () => {
             </div>)
         })}
         </div>
+        <div className="bio">
         {currentAccount && (
           <form onSubmit={handleSubmit}>
             <input onChange={(e) => setBet(e.target.value)} value={bet}></input>
             <button className="waveButton">
-              Place Bet ✨
+              Place Bet in ETH✨
             </button>
           </form>
         )}
+        ETH price ${currentETHPriceUSD}
+        </div>
         {!currentAccount && (
           <button className="waveButton" onClick={connectWallet}>
             Connect Wallet
           </button>
+          
         )}
-
+        
       </div>
     </div>
   );
