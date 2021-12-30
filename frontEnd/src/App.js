@@ -17,7 +17,7 @@ const App = () => {
   const [stravaLink, setStravaLink] = useState("");
   const [stravaCode, setStravaCode] = useState("");
   const [bet, setBet] = useState("");
-  const [currentETHPrice,setETHPrice] = useState("");
+  const [currentETHPriceUSD,setETHPrice] = useState("");
   let stravaCodefunction = "";
   let sMiles = "";
   const [stravaMiles, setStravaMiles] = useState("");
@@ -115,8 +115,12 @@ const App = () => {
   const cCompare = async () =>{
     cc.price('ETH', 'USD')
     .then(prices => {
-      setETHPrice(prices);
-      console.log(prices)
+      const map = new Map(Object.entries(prices));
+      const USDValue = map.get('USD');
+      console.log(USDValue);
+      setETHPrice(USDValue);
+      console.log(prices);
+      
       // -> { USD: 1100.24 }
     })
     .catch(console.error)
@@ -158,10 +162,11 @@ const App = () => {
     const provider = new ethers.providers.Web3Provider(ethereum);
     const signer = provider.getSigner();
     const WalkCompitionContract = new ethers.Contract(contractAddress, contractABI, signer);
-    //const ethValue = eth
-    const ethToWei = `${bet}` * 1000000000000000000;
-    console.log(ethToWei);
-    let placeBet = await WalkCompitionContract.takeBet(`${currentAccount}`,{value: ethToWei});
+    const currentETHUSD = `${currentETHPriceUSD}`;
+    const usdPriceToETH = `${bet}` * `${currentETHPriceUSD}`;
+    const ETHToWei =  ethers.utils.parseUnits(`${bet}`,'ether');
+    console.log("convertEthValueToUSD: "+ usdPriceToETH);
+    let placeBet = await WalkCompitionContract.takeBet(`${currentAccount}`,{value: ETHToWei});
      await placeBet.wait();
 
   }
@@ -235,9 +240,8 @@ const App = () => {
         <div className="header">
           🚶‍♂️ Walking competitions!
         </div>
-
         <div className="bio">
-          Connect your Ethereum wallet, Add your strava username, and pick your start and end date for the walking competition.
+          Connect your Meta Mask wallet | Login to Strava | Start walking
         </div>
 
         {!stravaCode && (<button className="waveButton" onClick={() => {
@@ -257,20 +261,24 @@ const App = () => {
             </div>)
         })}
         </div>
+        <div className="bio">
         {currentAccount && (
           <form onSubmit={handleSubmit}>
             <input onChange={(e) => setBet(e.target.value)} value={bet}></input>
             <button className="waveButton">
-              Place Bet ✨
+              Place Bet in ETH✨
             </button>
           </form>
         )}
+        ETH price ${currentETHPriceUSD}
+        </div>
         {!currentAccount && (
           <button className="waveButton" onClick={connectWallet}>
             Connect Wallet
           </button>
+          
         )}
-
+        
       </div>
     </div>
   );
